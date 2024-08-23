@@ -6,10 +6,12 @@ class Router
 {
     public array $routes = [];
 
+ 
     /**
-     * @param string $route - The route to add
-     * @param callable|array $action - The action to add
-     * @return self
+     * Adds a GET route
+     * @param string $route -> The route to add
+     * @param callable|array $action -> The action to add
+     * @return self -> The router
      */
     public function get(string $route, callable|array $action): self
     {
@@ -17,12 +19,24 @@ class Router
         return $this;
     }
 
+    /**
+     * Adds a POST route
+     * @param string $route -> The route to add
+     * @param callable|array $action -> The action to add
+     * @return self -> The router
+     */
     public function post(string $route, callable|array $action): self
     {
         $this->routes['POST'][$route] = $action;
         return $this;
     }
 
+    /**
+     * Resolves the route
+     * @param string $requestUri -> The request URI
+     * @param string $requestMethod -> The request method
+     * @return mixed -> The result of the route
+     */
     public function resolve(string $requestUri, string $requestMethod)
     {
         $route = explode("?", $requestUri)[0];

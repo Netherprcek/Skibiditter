@@ -9,7 +9,10 @@ class DB
     // PDO instance - PHP Data Object provides consistent access to databases
     private PDO $pdo;
 
-    // Constructor to connect to the database
+    /**
+     * Constructs the database
+     * @param array $config -> The config to construct
+     */
     public function __construct(protected array $config)
     {
         $defaultOptions = [

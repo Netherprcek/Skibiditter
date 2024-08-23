@@ -8,7 +8,13 @@ use App\Models\NotificationsModel;
 
 class HomeController
 {
-
+    /**
+     * Shows the home page
+     * @param int $page -> The current page
+     * @param int $limit -> The number of posts per page
+     * @param int $offset -> The offset of the posts
+     * @return View -> The home page
+     */
     public function index()
     {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

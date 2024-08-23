@@ -10,9 +10,10 @@ use DateTime;
 class postsModel extends Model
 {
     /**
-     * Fetches all posts from the database
-     * @param $result -> Fetches all posts from the database
-     * @return $data -> Returns the posts and the number of posts
+     * Fetches the explore data
+     * @param int $limit -> The limit of posts to fetch
+     * @param int $offset -> Number of posts to skip
+     * @return $data -> The posts
      */
     public function fetchExploreData($limit, $offset)
     {
@@ -86,9 +87,10 @@ class postsModel extends Model
     }
 
     /**
-     * Fetches all posts from the database
-     * @param $result -> Fetches all posts from the database
-     * @return $data -> Returns the posts and the number of posts
+     * Fetches the home data
+     * @param int $limit -> The limit of posts to fetch
+     * @param int $offset -> Number of posts to skip
+     * @return $posts -> The posts
      */
     public function fetchHomeData($limit, $offset)
     {
@@ -141,6 +143,13 @@ class postsModel extends Model
         }
     }
 
+    /**
+     * Sends the post data to the database
+     * @param string $post_text -> The post text
+     * @param string $username -> The current username
+     * @param int $user_id -> The current user id
+     * @param string $img -> The image
+     */
     public function sendPostData($post_text, $username, $user_id, $img)
     {
         $this->db->beginTransaction();
@@ -149,6 +158,10 @@ class postsModel extends Model
         $this->db->commit();
     }
 
+    /**
+     * Deletes the post and all related comments and likes
+     * @param int $post_id -> The post id
+     */
     public function deletePost($post_id)
     {
         // Debugging statement to check if the method is called
@@ -167,6 +180,7 @@ class postsModel extends Model
             $stmt2->bindParam(':post_id', $post_id, PDO::PARAM_INT);
             $stmt2->execute();
 
+            // Delete the related comments
             $stmt3 = $this->db->prepare("DELETE FROM comments WHERE id_post = :post_id");
             $stmt3->bindParam(':post_id', $post_id, PDO::PARAM_INT);
             $stmt3->execute();
@@ -182,6 +196,12 @@ class postsModel extends Model
         }
     }
 
+    /**
+     * Edits the post
+     * @param int $post_id -> The post id
+     * @param string $post_text -> The post text
+     * @param string $img -> The image
+     */
     public function editPost($post_id, $post_text, $img = null)
     {
         if ($img) {
@@ -193,7 +213,11 @@ class postsModel extends Model
         }
     }
 
-
+    /**
+     * Gets the user posts
+     * @param string $username -> The username
+     * @return $result -> The posts
+     */
     public function getUserposts($username)
     {
         $user_id = $_SESSION['user_id'] ?? null;
@@ -235,6 +259,11 @@ class postsModel extends Model
         return $data;
     }
 
+    /**
+     * Gets the post by id
+     * @param int $id_post -> The post id
+     * @return $result -> The post
+     */
     public function getPostById($id_post)
     {
         $stmt = $this->db->prepare(
@@ -259,13 +288,20 @@ class postsModel extends Model
         return $result;
     }
 
+    /**
+     * Gets the comments for a post
+     * @param int $id_post -> The post id
+     * @return $result -> The comments
+     */
     public function getCommentsByIdPost($id_post)
     {
         try {
             $query = 'SELECT comments.*, users.avatar, 
-                      (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count 
+                      (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count, 
+                      CASE WHEN likes.user_id IS NOT NULL THEN 1 ELSE 0 END AS liked
                       FROM comments 
                       LEFT JOIN users ON comments.username = users.username
+                      LEFT JOIN likes ON comments.id_comment = likes.id_comment AND likes.user_id = ?
                       WHERE comments.id_post = ? AND comments.id_parentComment IS NULL
                       ORDER BY comments.created_at DESC';
 
@@ -276,7 +312,7 @@ class postsModel extends Model
                 throw new \Exception("Failed to prepare statement: " . implode(" ", $this->db->errorInfo()));
             }
 
-            $stmt->execute([$id_post]);
+            $stmt->execute([$_SESSION['user_id'], $id_post]);
 
             // Check if the statement executed successfully
             if ($stmt->errorCode() != '00000') {
@@ -310,6 +346,11 @@ class postsModel extends Model
         }
     }
 
+    /**
+     * Gets the parent comment
+     * @param mixed $id_comment -> The comment id
+     * @return $result -> The parent comment
+     */
     public function getParentComment($id_comment)
     {
         $stmt = $this->db->prepare(
@@ -323,19 +364,34 @@ class postsModel extends Model
         return $result;
     }
 
+    /**
+     * Gets the replies for a comment
+     * @param int $id_comment -> The comment id
+     * @return $result -> The replies
+     */
     public function getReplies($id_comment)
     {
-        $stmt = $this->db->prepare('SELECT comments.*, users.avatar, 
-        (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count 
-        FROM comments
-        LEFT JOIN users ON comments.username = users.username
-        WHERE id_parentComment = ?');
-        $stmt->execute([$id_comment]);
+        $stmt = $this->db->prepare(
+            'SELECT comments.*, users.avatar, 
+            (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count, 
+            CASE WHEN likes.user_id IS NOT NULL THEN 1 ELSE 0 END AS liked
+            FROM comments
+            LEFT JOIN users ON comments.username = users.username
+            LEFT JOIN likes ON comments.id_comment = likes.id_comment AND likes.user_id = ?
+            WHERE id_parentComment = ?'
+        );
+        $stmt->execute([$_SESSION['user_id'], $id_comment]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Replies fetched: " . json_encode($result));
+
         return $result;
     }
 
+    /**
+     * Sends the comment to the database
+     * @param int $post_id -> The post id
+     * @param string $comment_text -> The comment text
+     * @param string $username -> The username
+     */
     public function sendCommentToDb($post_id, $comment_text, $username)
     {
         try {
@@ -352,6 +408,13 @@ class postsModel extends Model
         }
     }
 
+    /**
+     * Sends the reply to the database
+     * @param int $id_post -> The post id
+     * @param int $id_parentComment -> The parent comment id
+     * @param string $comment_text -> The comment text
+     * @param string $username -> The username
+     */
     public function sendReplyToDb($id_post, $id_parentComment, $comment_text, $username)
     {
         if ($id_parentComment && $comment_text && $username === $_SESSION['username']) {
@@ -360,16 +423,21 @@ class postsModel extends Model
                 $stmt = $this->db->prepare('INSERT INTO comments (id_post, id_parentComment, comment_text, username, created_at) VALUES (?, ?, ?, ?, NOW())');
                 $stmt->execute([$id_post, $id_parentComment, $comment_text, $username]);
                 $this->db->commit();
-                error_log("Reply successfully inserted into database");
+
             } catch (\PDOException $e) {
                 $this->db->rollBack();
-                error_log("Database error: " . $e->getMessage());
                 echo "Database error: " . $e->getMessage();
                 exit;
             }
         }
     }
 
+    /**
+     * Handles the like and unlike functionality
+     * @param int $post_id -> The post id
+     * @param int $user_id -> The current user id
+     * @return $liked -> The liked status
+     */
     public function likeHandler($post_id, $user_id)
     {
         if ($_SESSION['user_id'] == $user_id) {
@@ -419,7 +487,6 @@ class postsModel extends Model
 
                 $this->db->commit();
 
-                // Return the updated like count and liked status as JSON
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'likes' => $likes, 'liked' => $liked]);
             } catch (\PDOException $e) {
@@ -431,6 +498,11 @@ class postsModel extends Model
         }
     }
 
+    /**
+     * Handles the comment like and unlike functionality
+     * @param int $comment_id -> The comment id
+     * @param int $user_id -> The current user id
+     */
     public function commentsLikeHandler($comment_id, $user_id)
     {
         error_log("Comments like handler called with comment_id: " . $comment_id . " and user_id: " . $user_id);
@@ -486,7 +558,6 @@ class postsModel extends Model
                 echo json_encode(['success' => true, 'likes' => $likes, 'liked' => $liked]);
             } catch (\PDOException $e) {
                 $this->db->rollBack();
-                // Return the error as JSON
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             }

@@ -8,6 +8,13 @@ use App\View;
 
 class PostController
 {
+    /**
+     * Creates a post
+     * @param string $post_text -> The post text
+     * @param string $username -> The current username
+     * @param int $user_id -> The current user id
+     * @param string $img -> The image path
+     */
     public function createPost()
     {
         unset($_SESSION['post_error']);
@@ -53,6 +60,13 @@ class PostController
         exit;
     }
 
+    /**
+     * Edits a post
+     * @param string $username -> The username
+     * @param int $post_id -> The post id
+     * @param string $post_text -> The post text
+     * @param string $img -> The image path
+     */
     public function editPost()
     {
         $username = $_POST['username'] ?? null;
@@ -93,6 +107,11 @@ class PostController
         exit;
     }
 
+    /**
+     * Deletes a post
+     * @param string $username -> The username
+     * @param int $post_id -> The post id
+     */
     public function deletePost()
     {
         // Read the JSON input and decode it into an associative array
@@ -118,9 +137,14 @@ class PostController
         exit;
     }
 
+    /**
+     * Creates a comment to a post
+     * @param int $id_post -> The post id
+     * @param string $comment_text -> The comment text
+     * @param string $username -> The username
+     */
     public function createComment()
     {
-
         $id_post = $_POST['post_id'] ?? null;
         $comment_text = $_POST['comment_text'] ?? null;
         $username = $_SESSION['username'] ?? null;
@@ -137,6 +161,11 @@ class PostController
         exit;
     }
 
+    /**
+     * Shows the comments for a post
+     * @param int $id_post -> The post id
+     * @return View $result -> The comments for a post
+     */
     public function viewComments($id_post)
     {
         $postModel = new PostsModel();
@@ -153,6 +182,11 @@ class PostController
         ]);
     }
 
+    /**
+     * Shows the replies for a comment
+     * @param int $id_comment -> The comment id
+     * @return View $result -> The replies for a comment
+     */
     public function viewReplies($id_comment)
     {
         $postModel = new PostsModel();
@@ -170,6 +204,13 @@ class PostController
         ]);
     }
 
+    /**
+     * Creates a reply to a comment
+     * @param int $id_parentComment -> The parent comment id
+     * @param int $id_post -> The post id
+     * @param string $comment_text -> The comment text
+     * @param string $username -> The username
+     */
     public function createReply()
     {
         $id_parentComment = $_POST['id_parentComment'] ?? null;
@@ -187,6 +228,11 @@ class PostController
         }
     }
 
+    /**
+     * Shows the edit post form
+     * @param int $id_post -> The post id
+     * @return View $result -> The edit post form
+     */
     public function showEditPostForm($id_post)
     {
         $postModel = new PostsModel();
@@ -205,6 +251,9 @@ class PostController
         ]);
     }
 
+    /**
+     * Handles the likes for posts
+     */
     public function handleLike()
     {
         $user_id = $_SESSION['user_id'];
@@ -213,6 +262,9 @@ class PostController
         $postModel->likeHandler($id_post, $user_id);
     }
 
+    /**
+     * Handles the likes for comments
+     */
     public function handleCommentLike()
     {
         $user_id = $_SESSION['user_id'];

@@ -6,6 +6,11 @@ use App\Model;
 
 class RegisterModel extends Model
 {
+    /**
+     * Attempts to register a user
+     * @param string $username -> The username
+     * @param string $password -> The password
+     */
     public function registerUser($username, $password)
     {
         try {

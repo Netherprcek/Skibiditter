@@ -7,6 +7,10 @@ use Carbon\Carbon;
 
 class NotificationsModel extends Model
 {
+    /**
+     * Fetches the notifications for right bar
+     * @return array $result -> The notifications elements
+     */
     public function getNotifications()
     {
         $userId = $_SESSION['user_id'] ?? null;

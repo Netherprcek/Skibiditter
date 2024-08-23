@@ -8,6 +8,13 @@ use App\Models\NotificationsModel;
 
 class ExploreController
 {
+    /**
+     * Shows the explore page
+     * @param int $page -> The current page
+     * @param int $limit -> The number of posts per page
+     * @param int $offset -> The offset of the posts
+     * @return View -> The explore page
+     */
     public function index()
     {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

@@ -9,12 +9,20 @@ use App\Models\NotificationsModel;
 
 class ProfileController
 {
+    /**
+     * Shows the my profile page
+     * @return View $result -> The my profile page
+     * @param array $posts -> The posts
+     * @param array $profile -> The profile card elements
+     * @param array $notifications -> The notifications for right bar
+     */
     public function showMyProfile()
     {
         $postsData = (new PostsModel())->getUserPosts($_SESSION['username']);
         $posts = $postsData['posts'];
         $profile = (new ProfileModel())->getProfileCard($_SESSION['username']);
         $notifData = (new NotificationsModel())->getNotifications();
+        
         $notifications = $notifData['notifications'] ?? [];
         $is_session = isset($_SESSION['user_id']);
 
@@ -29,11 +37,13 @@ class ProfileController
         ]);
     }
 
+    /**
+     * Shows the user profile
+     * @param string $usernameUri -> The username
+     * @return View $result -> The user profile
+     */
     public function showUserProfile($usernameUri)
     {
-        // $_SESSION['URI_USERNAME'] = $usernameUri;
-        // error_log("Username: " . $usernameUri);
-
         $postsData = (new PostsModel())->getUserPosts($usernameUri);
         $posts = $postsData['posts'];
         $is_session = isset($_SESSION['user_id']);
@@ -64,6 +74,12 @@ class ProfileController
         ]);
     }
 
+    /**
+     * Shows the edit profile form
+     * @param array $profile -> The profile card elements
+     * @param array $notifications -> The notifications for right bar
+     * @return View $result -> The edit profile form
+     */
     public function showEditProfileForm()
     {
         $profile = (new ProfileModel())->getProfileCard($_SESSION['username']);
@@ -81,6 +97,13 @@ class ProfileController
         ]);
     }
 
+    /**
+     * Edits the profile
+     * @param string $username -> The username
+     * @param string $avatar -> The avatar
+     * @param string $background -> The background
+     * @param string $bio -> The bio
+     */
     public function editProfile()
     {
         $username = $_SESSION['username'] ?? null;
@@ -153,6 +176,10 @@ class ProfileController
         exit;
     }
 
+    /**
+     * Follows a user
+     * @param int $followed_id -> The followed user id
+     */
     public function followUser($followed_id)
     {
         error_log("FollowUser: " . $followed_id . " " . $_SESSION['user_id']);
@@ -172,6 +199,10 @@ class ProfileController
         }
     }
 
+    /**
+     * Unfollows a user
+     * @param int $followed_id -> The followed user id
+     */
     public function unfollowUser($followed_id)
     {
         error_log("UnfollowUser: " . $followed_id . " " . $_SESSION['user_id']);
@@ -191,11 +222,23 @@ class ProfileController
         }
     }
 
+    /**
+     * Checks if the request is an AJAX request
+     * @return bool $result -> The result
+     */
     private function isAjaxRequest()
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     }
 
+    /**
+     * Shows the followers page
+     * @param string $username -> The username
+     * @param array $followers -> The followers
+     * @param array $profileCard -> The profile card elements
+     * @param array $notifications -> The notifications for right bar
+     * @return View $result -> The followers page
+     */
     public function showFollowers($username)
     {
         $user_id = (new ProfileModel())->getUserId($username);
@@ -222,6 +265,14 @@ class ProfileController
         ]);
     }
 
+    /**
+     * Shows the following page 
+     * @param string $username -> The username
+     * @param array $following -> The following users
+     * @param array $profileCard -> The profile card elements
+     * @param array $notifications -> The notifications for right bar
+     * @return View $result -> The following page
+     */
     public function showFollowing($username)
     {
         $user_id = (new ProfileModel())->getUserId($username);
@@ -229,6 +280,7 @@ class ProfileController
         $profileCard = (new ProfileModel())->getProfileCard($username);
         $notifData = (new NotificationsModel())->getNotifications();
         $notifications = $notifData['notifications'] ?? [];
+        // Check if the user is following the user
         $profileCard['is_following'] = (new ProfileModel())->isFollowing($user_id);
         $is_session = isset($_SESSION['user_id']);
 
@@ -247,6 +299,11 @@ class ProfileController
         ]);
     }
 
+    /**
+     * Fetches the user ID
+     * @param string $username -> The username
+     * @return int $result -> The user ID
+     */
     public function getUserId($username)
     {
         return (new ProfileModel())->getUserId($username);

@@ -10,7 +10,8 @@ class Config
     protected array $config = [];
 
     /**
-     * @param array $env - Accepts an array of key/value from provided source
+     * Constructs the config
+     * @param array $env -> The .env params to construct
      */
     public function __construct(array $env)
     {
@@ -30,11 +31,20 @@ class Config
         ];
     }
 
+    /**
+     * Gets the value of a parameter
+     * @param string $name -> The name of the parameter
+     * @return mixed -> The value of the parameter
+     */
     public function __get(string $name)
     {
         return $this->config[$name] ?? null;
     }
 
+    /**
+     * Gets the mustache engine to render views
+     * @return Mustache_Engine -> The mustache engine
+     */
     public function getMustache(): Mustache_Engine
     {
         return $this->config['mustache'];

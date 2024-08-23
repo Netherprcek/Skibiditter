@@ -1,3 +1,4 @@
+// Toggle the options menu for a post
 function toggleOptions(postId, event) {
   event.stopPropagation(); // Prevent the click event from propagating to the document
 
@@ -29,6 +30,7 @@ function toggleOptions(postId, event) {
   );
 }
 
+// Handle the like button
 function handleLike(like_id) {
   const form = document.getElementById(`like-form-${like_id}`);
   console.log(form);
@@ -66,6 +68,7 @@ function handleLike(like_id) {
     });
 }
 
+// Handle the delete button
 document.querySelectorAll("form[id^='deleteForm-']").forEach(form => {
   form.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent the default form submission

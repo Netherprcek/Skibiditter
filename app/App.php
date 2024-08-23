@@ -6,16 +6,29 @@ class App
 {
     private static DB $db;
 
+    /**
+     * Constructs the app
+     * @param Router $router -> The router to construct
+     * @param array $request -> The request to construct
+     * @param Config $config -> The config to construct with
+     */
     public function __construct(protected Router $router, protected array $request, protected Config $config)
     {
         static::$db = new DB($config->db ?? []);
     }
 
+    /**
+     * Reusable database instance
+     * @return DB -> The database instance
+     */
     public static function db(): DB
     {
         return static::$db;
     }
 
+    /**
+     * Runs the app
+     */
     public function run()
     {
         try {

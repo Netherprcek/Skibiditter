@@ -1,3 +1,4 @@
+// Updates the follow state
 function updateFollowState(isFollowing, followerCount) {
   const followForm = document.querySelector('form[action$="/follow"]');
   const unfollowForm = document.querySelector('form[action$="/unfollow"]');
@@ -13,6 +14,7 @@ function updateFollowState(isFollowing, followerCount) {
   }
 }
 
+// Handle the follow button
 function toggleFollow(form, isFollowing) {
   fetch(form.action, {
     method: "POST",
@@ -35,6 +37,7 @@ function toggleFollow(form, isFollowing) {
     });
 }
 
+// Prevents the default form submission and toggles the follow state
 document.addEventListener("DOMContentLoaded", () => {
   const followForm = document.querySelector('form[action$="/follow"]');
   const unfollowForm = document.querySelector('form[action$="/unfollow"]');

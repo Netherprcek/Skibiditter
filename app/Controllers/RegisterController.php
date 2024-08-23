@@ -7,11 +7,21 @@ use App\Models\RegisterModel;
 
 class RegisterController
 {
+    /**
+     * Shows the register form
+     * @return View $result -> The register form
+     */
     public function showRegisterForm()
     {
         return View::make('register');
     }
 
+    /**
+     * Registers a user
+     * @param string $username -> The username
+     * @param string $password -> The password
+     * @return View $result -> The register form
+     */
     public function register()
     {
         // Validate input

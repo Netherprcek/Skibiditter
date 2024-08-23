@@ -9,6 +9,10 @@ use App\Models\NotificationsModel;
 
 class SearchController
 {
+    /**
+     * Shows the search page
+     * @return View $result -> The search page
+     */
     public function showSearch()
     {
         $recommendedUsers = (new SearchModel)->showRecommendations();
@@ -31,6 +35,10 @@ class SearchController
         ]);
     }
 
+    /**
+     * Searches for users and displays them
+     * @return View $result -> The search page
+     */
     public function searchUsers()
     {
         error_log("searchUsers method called");

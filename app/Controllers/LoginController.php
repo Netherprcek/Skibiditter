@@ -7,6 +7,10 @@ use App\Models\LoginModel;
 
 class LoginController
 { 
+    /**
+     * Shows the login form
+     * @return View -> The login form
+     */
     public function showLoginForm()
     {
         $sessionError = $_SESSION['error'] ?? '';
@@ -15,7 +19,9 @@ class LoginController
     }
 
     /**
-     * @param 
+     * Logs in a user
+     * @param string $username -> The username
+     * @param string $password -> The password
      */
     public function login()
     {
@@ -24,7 +30,7 @@ class LoginController
 
         $loginModel = new LoginModel();
         $user = $loginModel->authenticate($username, $password);
-
+        
         if ($user) {
             $_SESSION['user_id'] = $user['user_id'] ?? 'No user id provided';
             $_SESSION['username'] = $user['username'] ?? 'No username provided';

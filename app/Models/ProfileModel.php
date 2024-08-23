@@ -7,7 +7,12 @@ use PDO;
 use DateTime;
 
 class ProfileModel extends Model
-{
+{   
+    /**
+     * Fetches the profile card
+     * @param string $username -> The username
+     * @return array $result -> The profile card elements
+     */
     public function getProfileCard($username)
     {
         $stmt = $this->db->prepare('SELECT users.user_id, users.username, users.avatar, users.background, users.bio, users.followers, users.following FROM users WHERE username = ?');
@@ -21,6 +26,13 @@ class ProfileModel extends Model
         return $result;
     }
 
+    /**
+     * Updates the profile
+     * @param string $username -> The username
+     * @param string $avatar -> The avatar
+     * @param string $background -> The background
+     * @param string $bio -> The bio
+     */
     public function updateProfile($username, $avatar = null, $background = null, $bio = null)
     {
         $fields = [];
@@ -46,6 +58,13 @@ class ProfileModel extends Model
         }
     }
 
+    /**
+     * Follow/Unfollow handling method
+     * @param int $followed_id -> The followed user id
+     * @param bool $isFollow -> The follow state
+     * @param bool $isFollowing -> The following state
+     * @return array $result -> The follow result
+     */
     public function followHandler($followed_id, $isFollow)
     {
         error_log("FollowHandler: " . $followed_id . " " . $isFollow);
@@ -59,13 +78,12 @@ class ProfileModel extends Model
         try {
             $this->db->beginTransaction();
 
-            // Check current follow state
-            $checkStmt = $this->db->prepare('SELECT COUNT(*) FROM follows WHERE follower_id = ? AND followed_id = ?');
-            $checkStmt->execute([$follower_id, $followed_id]);
-            $exists = (bool)$checkStmt->fetchColumn();
-
+            // Check current follow state using isFollowing method
+            $exists = $this->isFollowing($followed_id);
+            
             $success = false;
 
+            // Follow a user
             if ($isFollow && !$exists) {
                 $insertFollowStmt = $this->db->prepare('INSERT INTO follows (follower_id, followed_id, created_at) VALUES (?, ?, NOW())');
                 $success = $insertFollowStmt->execute([$follower_id, $followed_id]);
@@ -75,6 +93,7 @@ class ProfileModel extends Model
 
                 $updateFollowerStmt = $this->db->prepare('UPDATE users SET following = following + 1 WHERE user_id = ?');
                 $updateFollowerStmt->execute([$follower_id]);
+                // Unfollow a user
             } elseif (!$isFollow && $exists) {
                 $deleteFollowStmt = $this->db->prepare('DELETE FROM follows WHERE follower_id = ? AND followed_id = ?');
                 $success = $deleteFollowStmt->execute([$follower_id, $followed_id]);
@@ -102,6 +121,11 @@ class ProfileModel extends Model
         }
     }
 
+    /**
+     * Checks if the user is following the user
+     * @param int $followed_id -> The followed user id
+     * @return bool $result -> The follow result
+     */
     public function isFollowing($followed_id)
     {
         $follower_id = $_SESSION['user_id'];
@@ -110,6 +134,11 @@ class ProfileModel extends Model
         return (bool)$stmt->fetchColumn();
     }
 
+    /**
+     * Fetches the followers
+     * @param int $user_id -> The user id
+     * @return array $result -> List of users following you
+     */
     public function getFollowers($user_id)
     {
         $stmt = $this->db->prepare(
@@ -131,6 +160,11 @@ class ProfileModel extends Model
         return $result;
     }
 
+    /**
+     * Fetches the following
+     * @param int $user_id -> The user id
+     * @return array $result -> List of users you follow
+     */
     public function getFollowing($user_id)
     {
         $stmt = $this->db->prepare(
@@ -152,6 +186,11 @@ class ProfileModel extends Model
         return $result;
     }
 
+    /**
+     * Fetches the user id (cuz im dumb)
+     * @param string $username -> The username
+     * @return int $result -> The user id
+     */
     public function getUserId($username)
     {
         $stmt = $this->db->prepare('SELECT user_id FROM users WHERE username = ?');

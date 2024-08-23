@@ -7,6 +7,10 @@ use PDO;
 
 class SearchModel extends Model
 {
+    /**
+     * Fetches all users to display as recommendations
+     * @return array $result -> The recommendations
+     */
     public function showRecommendations()
     {
         $query =
@@ -29,6 +33,11 @@ class SearchModel extends Model
         return $result;
     }
 
+    /**
+     * Searches for users
+     * @param string $searchTerm -> The search term
+     * @return array $result -> The users you seearched for
+     */
     public function searchUsers($searchTerm)
     {
         
