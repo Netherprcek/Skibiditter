@@ -1,0 +1,35 @@
+<title>Search</title>
+{{> partials/header}}
+<div class="flex min-h-screen flex-col">
+  {{> partials/navbar}}
+  <div class="flex flex-1 pt-16">
+    {{> partials/leftBar}}
+    <div id="center_column" class="flex-1 flex justify-center">
+      <div class="w-full max-w-2xl">
+        <h1 class="mb-6 mt-6 text-center text-3xl font-bold text-white">
+          {{pageTitle}}
+        </h1>
+        <form action="/search" method="post" class="relative mx-4 mb-4">
+          <input
+            type="text"
+            placeholder="Search for users"
+            name="searchTerm"
+            id="searchTerm"
+            class="w-full resize-none overflow-hidden rounded-lg bg-slate-700 p-2 pr-20 focus:outline-none"
+            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
+          />
+          <button
+            type="submit"
+            class="absolute right-1 top-1/2 -translate-y-1/2 rounded-lg bg-blue-500 px-4 py-1 text-white"
+          >
+            Search
+          </button>
+        </form>
+        <div class="mx-4">{{> partials/recommendedUsers}}</div>
+      </div>
+    </div>
+    {{> partials/rightBar}}
+  </div>
+</div>
+
+<script src="/js/buttons.js"></script>

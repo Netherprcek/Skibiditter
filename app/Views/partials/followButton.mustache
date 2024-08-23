@@ -1,0 +1,36 @@
+{{#is_session}}
+{{#is_following}}
+<form
+  action="/{{user_id}}/unfollow"
+  method="POST"
+  class="flex h-full items-center"
+>
+  <button
+    type="submit"
+    class="rounded-lg bg-red-600 px-4 py-2 text-white transition duration-300 ease-in-out text-shadow-default hover:bg-red-700 hover:text-shadow-lg"
+  >
+    Unfollow 
+  </button>
+</form>
+{{/is_following}} {{^is_following}}
+<form
+  action="/{{user_id}}/follow"
+  method="POST"
+  class="flex h-full items-center"
+>
+  <button
+    type="submit"
+    class="rounded-lg bg-blue-600 px-4 py-2 text-white transition duration-300 ease-in-out text-shadow-default hover:bg-blue-700"
+  >
+    Follow 
+  </button>
+</form>
+{{/is_following}} {{/is_session}} 
+{{^is_session}}
+<a
+  href="/login"
+  class="rounded-lg bg-blue-600 px-4 py-2 text-white transition duration-300 ease-in-out text-shadow-default hover:bg-blue-700"
+>
+  Follow
+</a>
+{{/is_session}}

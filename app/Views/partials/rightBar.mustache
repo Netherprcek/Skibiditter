@@ -1,0 +1,17 @@
+<div
+  id="right_column"
+  class="sticky top-16 flex h-[calc(100vh-4rem)] w-1/3 flex-col overflow-y-auto border-l-2 border-gray-800 pl-4"
+>
+  <div class="mt-8">
+    <!-- Added wrapper div with top margin -->
+    <h2 class="mb-6 text-xl font-bold ml-6">Recent activity</h2>
+    <ul class="list-disc pl-5">
+      {{#notifications}}
+        <li class="flex items-center mb-2">
+          {{> partials/postsAvatar}}
+          <span class="ml-2"> <a href="/profile/{{username}}" class="text-blue-500">{{username}}</a> created a new <a href="/{{id_post}}/comments" class="text-blue-500">post</a> - {{created_at}}</span>
+        </li>
+      {{/notifications}}
+    </ul>
+  </div>
+</div>

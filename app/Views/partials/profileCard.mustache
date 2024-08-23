@@ -1,0 +1,110 @@
+<div class="relative mb-6 mt-4 overflow-hidden bg-gray-800 shadow-md">
+  <!-- Profile background -->
+  <div
+    class="h-48 bg-cover bg-center"
+    style="background-image: url('{{profile.background}}');"
+  ></div>
+
+  <!-- Profile info -->
+  <div class="p-6 pt-0">
+    <div class="-mt-16 flex items-center">
+      <!-- Avatar -->
+      <img
+        src="{{profile.avatar}}"
+        alt="{{profile.username}}'s avatar"
+        class="mr-2 h-36 w-36 rounded-full border-4 border-blue-500"
+      />
+
+      <!-- User info -->
+      <div class="mt-16 flex-grow">
+        <a href="/profile{{^profile.is_owner}}/{{profile.username}}{{/profile.is_owner}}"><h2 class="text-2xl font-bold text-white">{{profile.username}}</h2></a>
+        <p class="text-gray-400">@{{profile.username}}</p>
+      </div>
+
+      <!-- Edit profile button -->
+      {{#profile.is_owner}}
+      <a
+        href="/{{profile.username}}/edit-profile"
+        class="mt-16 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+      >
+        Edit Profile
+      </a>
+      {{/profile.is_owner}} {{^profile.is_owner}} {{#profile}}
+      <div class="mt-16">{{> partials/followButton}}</div>
+      {{/profile}}{{/profile.is_owner}}
+    </div>
+
+    <!-- Bio -->
+
+    <div class="mt-4 text-gray-300" id="bio-container">
+      {{#profile.bio}}
+      <p
+        class="bio-text {{#profile.is_owner}}cursor-pointer{{/profile.is_owner}}"
+      >
+        {{profile.bio}}
+      </p>
+      {{/profile.bio}} {{^profile.bio}} {{#profile.is_owner}}
+      <p class="bio-text cursor-pointer">Click here to set your bio (Dont worry, only you can see this 😊)</p>
+      {{/profile.is_owner}} {{/profile.bio}} {{#profile.is_owner}}
+      <form
+        id="bio-form"
+        action="/{{username}}/edit-profile"
+        method="POST"
+        class="hidden"
+      >
+        <textarea
+          id="bio-textarea"
+          name="bio"
+          class="w-full resize-none overflow-hidden rounded-lg bg-gray-600 p-2 text-white leading-relaxed text-base"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button
+          type="submit"
+          id="update-bio-button"
+          class="mt-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Update
+        </button>
+      </form>
+      {{/profile.is_owner}}
+    </div>
+
+    <!-- User stats -->
+    <div class="mt-4 flex text-gray-400">
+      <div class="mr-6">
+        <a href="/{{profile.username}}/following" class="font-bold text-white">
+          {{profile.following}} <span class="text-gray-300 font-light">Following</span>
+        </a>
+        
+      </div>
+      <div class="mr-6">
+        <a href="/{{profile.username}}/followers" class="font-bold text-white">
+          {{profile.followers}} <span class="text-gray-300 font-light">Followers</span>
+        </a>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const bioText = document.querySelectorAll(".bio-text");
+    const bioForm = document.getElementById("bio-form");
+    const bioTextarea = document.getElementById("bio-textarea");
+
+    bioText.forEach(function (element) {
+      element.addEventListener("click", function () {
+        bioTextarea.value = element.textContent.trim();
+        element.classList.add("hidden");
+        bioForm.classList.remove("hidden");
+        autoResize(bioTextarea); // Adjust height on click
+      });
+    });
+  });
+
+  function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
+</script>

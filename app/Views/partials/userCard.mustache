@@ -1,0 +1,17 @@
+<div class="flex h-full flex-row items-center justify-between">
+  <div class="flex items-center">
+    {{> partials/postsAvatar}}
+    <div class="ml-4 flex flex-col">
+      <a href="/profile/{{ username }}" class="">
+        <p>{{username}}</p>
+      </a>
+    </div>
+  </div>
+  <div class="flex h-full items-center">
+    {{^is_current_user}}
+    <div class="button-wrapper mx-2 flex h-full items-center text-sm">
+      {{> partials/followButton}}
+    </div>
+    {{/is_current_user}}
+  </div>
+</div>
