@@ -1,5 +1,5 @@
 {{#post}}
-<article class="relative py-4 pb-0 border-b-2 border-gray-800">
+<article class="relative border-b-2 border-gray-800 py-4 pb-0">
   <div class="mb-2 flex items-center justify-between pl-4 pr-5">
     <div class="flex w-full items-center">
       {{#is_owner}}
@@ -7,10 +7,13 @@
       {{/is_owner}} {{^is_owner}}
       <span class=""> {{> partials/postsAvatar}} </span>
       {{/is_owner}}
-      <a href="/profile/{{ username }}" class="flex-grow pt-0 text-lg font-semibold text-white">
+      <a
+        href="/profile/{{ username }}"
+        class="flex-grow pt-0 text-lg font-semibold text-white"
+      >
         {{ username }}
       </a>
-      
+
       <span class="pr-10 pt-0 text-sm text-gray-300">{{created_at }}</span>
     </div>
     {{#is_owner}}
@@ -28,7 +31,13 @@
         >
           Edit
         </a>
-        <form action="/{{id_post}}/delete" id="deleteForm-{{id_post}}" method="POST" class="m-0 block" data-post-id="{{id_post}}">
+        <form
+          action="/{{id_post}}/delete"
+          id="deleteForm-{{id_post}}"
+          method="POST"
+          class="m-0 block"
+          data-post-id="{{id_post}}"
+        >
           <input type="hidden" name="post_id" value="{{id_post}}" />
           <input type="hidden" name="username" value="{{username}}" />
           <button
@@ -44,17 +53,11 @@
   </div>
 
   <div class="mb-0 px-2 md:px-16">
-    <p class="overflow-wrap break-word z-10 break-words ">
-      {{{ post_text }}}
-    </p> 
+    <p class="overflow-wrap break-word z-10 break-words">{{{ post_text }}}</p>
 
     {{#img}}
     <div class="mt-4 flex justify-center">
-      <img
-        src="{{ img }}"
-        alt="{{ title }}" 
-        class="rounded-lg object-cover"
-      /> 
+      <img src="{{ img }}" alt="{{ title }}" class="rounded-lg object-cover" />
     </div>
     {{/img}}
   </div>
@@ -80,13 +83,11 @@
       </button>
     </form>
     {{/session_user}}
-    <a href="http://localhost:8000/{{id_post}}/comments">
+    <a href="/{{id_post}}/comments">
       <button class="mr-2 rounded-lg px-4 py-2 text-white hover:text-blue-600">
         <i class="fas fa-comment"></i> {{comment_count}}
       </button>
     </a>
-    
-    
   </div>
 </article>
 
