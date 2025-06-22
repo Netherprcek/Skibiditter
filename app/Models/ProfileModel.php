@@ -128,7 +128,7 @@ class ProfileModel extends Model
      */
     public function isFollowing($followed_id)
     {
-        $follower_id = $_SESSION['user_id'];
+        $follower_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
         $stmt = $this->db->prepare('SELECT COUNT(*) FROM follows WHERE follower_id = ? AND followed_id = ?');
         $stmt->execute([$follower_id, $followed_id]);
         return (bool)$stmt->fetchColumn();

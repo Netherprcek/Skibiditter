@@ -25,8 +25,8 @@ class SearchModel extends Model
         ";
         $stmt = $this->db->prepare($query);
         $stmt->execute([
-            ':session_user' => $_SESSION['username'],
-            ':session_user_id' => $_SESSION['user_id']
+            ':session_user' => isset($_SESSION['username']) ? $_SESSION['username'] : null,
+            ':session_user_id' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null
         ]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

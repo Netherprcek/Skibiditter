@@ -18,9 +18,9 @@ class ProfileController
      */
     public function showMyProfile()
     {
-        $postsData = (new PostsModel())->getUserPosts($_SESSION['username']);
+        $postsData = (new PostsModel())->getUserPosts(isset($_SESSION['username']) ? $_SESSION['username'] : null);
         $posts = $postsData['posts'];
-        $profile = (new ProfileModel())->getProfileCard($_SESSION['username']);
+        $profile = (new ProfileModel())->getProfileCard(isset($_SESSION['username']) ? $_SESSION['username'] : null);
         $notifData = (new NotificationsModel())->getNotifications();
         
         $notifications = $notifData['notifications'] ?? [];

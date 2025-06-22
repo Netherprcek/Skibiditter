@@ -7,16 +7,14 @@ use App\View;
 use PDO;
 use DateTime;
 
-class postsModel extends Model
-{
+class postsModel extends Model {
     /**
      * Fetches the explore data
      * @param int $limit -> The limit of posts to fetch
      * @param int $offset -> Number of posts to skip
      * @return $data -> The posts
      */
-    public function fetchExploreData($limit, $offset)
-    {
+    public function fetchExploreData($limit, $offset) {
         $user_id = $_SESSION['user_id'] ?? null;
         if ($user_id) {
             $query = 'SELECT posts.*, users.avatar, 
@@ -56,7 +54,7 @@ class postsModel extends Model
 
             // Add is_owner flag to each post, format the date, and make links clickable
             foreach ($result as &$post) {
-                $post['is_owner'] = $post['username'] == $_SESSION['username'];
+                $post['is_owner'] = isset($_SESSION['username']) && $post['username'] == $_SESSION['username'];
 
                 $date = new DateTime($post['created_at']);
                 $post['created_at'] = $date->format('F j, Y, g:i A');
@@ -92,8 +90,7 @@ class postsModel extends Model
      * @param int $offset -> Number of posts to skip
      * @return $posts -> The posts
      */
-    public function fetchHomeData($limit, $offset)
-    {
+    public function fetchHomeData($limit, $offset) {
         $userId = $_SESSION['user_id'] ?? null;
         if (!$userId) {
             error_log("User ID not found in session.");
@@ -124,7 +121,7 @@ class postsModel extends Model
 
             // Add is_owner flag to each post, format the date, and make links clickable
             foreach ($posts as &$post) {
-                $post['is_owner'] = $post['username'] == $_SESSION['username'];
+                $post['is_owner'] = isset($_SESSION['username']) && $post['username'] == $_SESSION['username'];
 
                 $date = new DateTime($post['created_at']);
                 $post['created_at'] = $date->format('F j, Y, g:i A');
@@ -150,8 +147,7 @@ class postsModel extends Model
      * @param int $user_id -> The current user id
      * @param string $img -> The image
      */
-    public function sendPostData($post_text, $username, $user_id, $img)
-    {
+    public function sendPostData($post_text, $username, $user_id, $img) {
         $this->db->beginTransaction();
         $stmt = $this->db->prepare('INSERT INTO posts (post_text, username, user_id, likes, created_at, img) VALUES (?, ?, ?, 0, NOW(), ?)');
         $stmt->execute([$post_text, $username, $user_id, $img]);
@@ -162,8 +158,7 @@ class postsModel extends Model
      * Deletes the post and all related comments and likes
      * @param int $post_id -> The post id
      */
-    public function deletePost($post_id)
-    {
+    public function deletePost($post_id) {
         // Debugging statement to check if the method is called
         error_log("deletePost method called with post_id: " . $post_id);
 
@@ -202,8 +197,7 @@ class postsModel extends Model
      * @param string $post_text -> The post text
      * @param string $img -> The image
      */
-    public function editPost($post_id, $post_text, $img = null)
-    {
+    public function editPost($post_id, $post_text, $img = null) {
         if ($img) {
             $stmt = $this->db->prepare('UPDATE posts SET post_text = ?, img = ? WHERE id_post = ?');
             $stmt->execute([$post_text, $img, $post_id]);
@@ -218,8 +212,7 @@ class postsModel extends Model
      * @param string $username -> The username
      * @return $result -> The posts
      */
-    public function getUserposts($username)
-    {
+    public function getUserposts($username) {
         $user_id = $_SESSION['user_id'] ?? null;
 
         $stmt = $this->db->prepare(
@@ -237,7 +230,7 @@ class postsModel extends Model
 
         // Add is_owner flag to each post
         foreach ($result as &$post) {
-            $post['is_owner'] = $post['username'] == $_SESSION['username'];
+            $post['is_owner'] = isset($_SESSION['username']) && $post['username'] == $_SESSION['username'];
             // Format the created_at date
             $date = new DateTime($post['created_at']);
             $post['created_at'] = $date->format('F j, Y, g:i A');
@@ -264,8 +257,7 @@ class postsModel extends Model
      * @param int $id_post -> The post id
      * @return $result -> The post
      */
-    public function getPostById($id_post)
-    {
+    public function getPostById($id_post) {
         $stmt = $this->db->prepare(
             'SELECT posts.*, users.avatar 
             FROM posts 
@@ -293,8 +285,7 @@ class postsModel extends Model
      * @param int $id_post -> The post id
      * @return $result -> The comments
      */
-    public function getCommentsByIdPost($id_post)
-    {
+    public function getCommentsByIdPost($id_post) {
         try {
             $query = 'SELECT comments.*, users.avatar, 
                       (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count, 
@@ -323,7 +314,7 @@ class postsModel extends Model
 
             // Add is_owner flag to each post
             foreach ($result as &$post) {
-                $post['is_owner'] = $post['username'] == $_SESSION['username'];
+                $post['is_owner'] = isset($_SESSION['username']) && $post['username'] == $_SESSION['username'];
 
                 // Format the created_at date
                 $date = new DateTime($post['created_at']);
@@ -351,8 +342,7 @@ class postsModel extends Model
      * @param mixed $id_comment -> The comment id
      * @return $result -> The parent comment
      */
-    public function getParentComment($id_comment)
-    {
+    public function getParentComment($id_comment) {
         $stmt = $this->db->prepare(
             'SELECT comments.*, users.avatar FROM comments 
             LEFT JOIN users ON comments.username = users.username
@@ -369,8 +359,7 @@ class postsModel extends Model
      * @param int $id_comment -> The comment id
      * @return $result -> The replies
      */
-    public function getReplies($id_comment)
-    {
+    public function getReplies($id_comment) {
         $stmt = $this->db->prepare(
             'SELECT comments.*, users.avatar, 
             (SELECT COUNT(*) FROM comments AS replies WHERE replies.id_parentComment = comments.id_comment) AS reply_count, 
@@ -392,8 +381,7 @@ class postsModel extends Model
      * @param string $comment_text -> The comment text
      * @param string $username -> The username
      */
-    public function sendCommentToDb($post_id, $comment_text, $username)
-    {
+    public function sendCommentToDb($post_id, $comment_text, $username) {
         try {
             $this->db->beginTransaction();
             $stmt = $this->db->prepare('INSERT INTO comments (id_post, comment_text, username, created_at) VALUES (?, ?, ?, NOW())');
@@ -415,15 +403,13 @@ class postsModel extends Model
      * @param string $comment_text -> The comment text
      * @param string $username -> The username
      */
-    public function sendReplyToDb($id_post, $id_parentComment, $comment_text, $username)
-    {
+    public function sendReplyToDb($id_post, $id_parentComment, $comment_text, $username) {
         if ($id_parentComment && $comment_text && $username === $_SESSION['username']) {
             try {
                 $this->db->beginTransaction();
                 $stmt = $this->db->prepare('INSERT INTO comments (id_post, id_parentComment, comment_text, username, created_at) VALUES (?, ?, ?, ?, NOW())');
                 $stmt->execute([$id_post, $id_parentComment, $comment_text, $username]);
                 $this->db->commit();
-
             } catch (\PDOException $e) {
                 $this->db->rollBack();
                 echo "Database error: " . $e->getMessage();
@@ -438,8 +424,7 @@ class postsModel extends Model
      * @param int $user_id -> The current user id
      * @return $liked -> The liked status
      */
-    public function likeHandler($post_id, $user_id)
-    {
+    public function likeHandler($post_id, $user_id) {
         if ($_SESSION['user_id'] == $user_id) {
             try {
                 $this->db->beginTransaction();
@@ -503,8 +488,7 @@ class postsModel extends Model
      * @param int $comment_id -> The comment id
      * @param int $user_id -> The current user id
      */
-    public function commentsLikeHandler($comment_id, $user_id)
-    {
+    public function commentsLikeHandler($comment_id, $user_id) {
         error_log("Comments like handler called with comment_id: " . $comment_id . " and user_id: " . $user_id);
         if ($_SESSION['user_id'] == $user_id) {
             try {
